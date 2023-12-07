@@ -93,3 +93,15 @@ if (!function_exists('profilePic')) {
     }
   }
 }
+if (!function_exists('getFirstName')) {
+  function getFirstName($string)
+  {
+    if ($string !== '') {
+      $nameParts = explode(' ', $string);
+      $firstName = $nameParts[0];
+    } else {
+      $firstName = 'User';
+    }
+    return $firstName;
+  }
+}

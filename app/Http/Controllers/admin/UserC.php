@@ -74,31 +74,32 @@ class UserC extends Controller
     $field->password = $password;
     $field->status = 1;
     $res = $field->save();
-    // if ($res) {
-    //   $dd = [
-    //     'to' => $request['email'],
-    //     'to_name' => $request['name'],
-    //     'subject' => 'Account Create',
-    //   ];
-    //   $emaildata = [
-    //     'name' => $request['name'],
-    //     'email' => $request['email'],
-    //     'mobile' => $request['mobile'],
-    //     'role' => $request['role'],
-    //     'username' => $username,
-    //     'password' => $password,
-    //   ];
 
-    //   Mail::send(
-    //     'mails.user-account-create',
-    //     $emaildata,
-    //     function ($message) use ($dd) {
-    //       $message->to($dd['to'], $dd['to_name']);
-    //       $message->subject($dd['subject']);
-    //       $message->priority(1);
-    //     }
-    //   );
-    // }
+    if ($res) {
+      $dd = [
+        'to' => $request['email'],
+        'to_name' => $request['name'],
+        'subject' => 'Account Create',
+      ];
+      $emaildata = [
+        'name' => $request['name'],
+        'email' => $request['email'],
+        'mobile' => $request['mobile'],
+        'role' => $field->role,
+        'username' => $username,
+        'password' => $password,
+      ];
+
+      Mail::send(
+        'mails.user-account-create',
+        $emaildata,
+        function ($message) use ($dd) {
+          $message->to($dd['to'], $dd['to_name']);
+          $message->subject($dd['subject']);
+          $message->priority(1);
+        }
+      );
+    }
     session()->flash('smsg', 'New record has been added successfully.');
     return redirect('admin/users');
   }

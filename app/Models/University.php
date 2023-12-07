@@ -7,5 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class University extends Model
 {
-    use HasFactory;
+  use HasFactory;
+  public function concernPeople()
+  {
+    return $this->hasMany(ConcernPerson::class);
+  }
 }

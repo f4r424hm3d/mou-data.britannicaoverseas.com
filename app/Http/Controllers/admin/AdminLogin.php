@@ -10,13 +10,13 @@ class AdminLogin extends Controller
 {
   public function index()
   {
-    return view('admin.login');
+    return view('auth.login');
   }
   public function login(Request $request)
   {
     //printArray($request->all());
     //die;
-    $field = User::whereIn('role', ['Admin', 'sub-admin'])->where('email', $request['username'])->orWhere('username', $request['username'])->first();
+    $field = User::where('email', $request['username'])->orWhere('username', $request['username'])->first();
     // printArray($field->toArray());
     // die;
     if (is_null($field)) {
@@ -29,7 +29,7 @@ class AdminLogin extends Controller
         $field->last_login = date("Y-m-d H:i:s");
         $field->save();
         session()->flash('smsg', 'Succesfully logged in');
-        $request->session()->put('userLoggedIn', ['user_id' => $field->id, 'user_name' => $field->name, 'username' => $request['username'], 'role' => $request['role']]);
+        $request->session()->put('userLoggedIn', ['user_id' => $field->id, 'user_name' => $field->name, 'username' => $field->username, 'role' => $field->role]);
         //return "logged in";
         //printArray($request->session()->all());
         //echo $request->session()->get('userLoggedIn')['user_id'];

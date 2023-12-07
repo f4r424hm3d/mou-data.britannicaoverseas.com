@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\AdminLogin;
 use App\Http\Controllers\admin\ConcernPersonC;
 use App\Http\Controllers\admin\UniversityC;
 use App\Http\Controllers\admin\UserC;
+use App\Http\Controllers\admin\UserForgetPasswordC;
 use App\Http\Controllers\CommonController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
@@ -71,14 +72,21 @@ Route::get('/f/migrate', function () {
   return true;
 });
 
-
 /* ADMIN ROUTES BEFORE LOGIN */
 Route::middleware(['userLoggedOut'])->group(function () {
   Route::get('/admin/login/', [AdminLogin::class, 'index']);
   Route::post('/admin/login/', [AdminLogin::class, 'login']);
+  Route::get('/account/password/reset', [UserForgetPasswordC::class, 'viewForgetPassword']);
+  Route::post('/forget-password', [UserForgetPasswordC::class, 'forgetPassword']);
+  Route::get('/forget-password/email-sent', [UserForgetPasswordC::class, 'emailSent']);
+  Route::get('/email-login', [UserForgetPasswordC::class, 'emailLogin']);
+  Route::get('/password/reset', [UserForgetPasswordC::class, 'viewResetPassword']);
+  Route::post('/reset-password', [UserForgetPasswordC::class, 'resetPassword']);
+  Route::get('/account/invalid_link', [UserForgetPasswordC::class, 'invalidLink']);
 });
 /* ADMIN ROUTES AFTER LOGIN */
 Route::middleware(['userLoggedIn'])->group(function () {
+  Route::get('/', [AdminDashboard::class, 'index']);
   Route::get('/admin/logout/', function () {
     session()->forget('userLoggedIn');
     return redirect('admin/login');

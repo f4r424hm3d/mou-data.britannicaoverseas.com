@@ -1,29 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <title>Admin Login | {{ config('app.name') }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
-  <meta content="Themesbrand" name="author" />
-  <!-- App favicon -->
-  <link rel="shortcut icon" href="{{ url('backend/') }}/assets/images/favicon.ico" />
-
-  <!-- preloader css -->
-  <link rel="stylesheet" href="{{ url('backend/') }}/assets/css/preloader.min.css" type="text/css" />
-
-  <!-- Bootstrap Css -->
-  <link href="{{ url('backend/') }}/assets/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet"
-    type="text/css" />
-  <!-- Icons Css -->
-  <link href="{{ url('backend/') }}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-  <!-- App Css-->
-  <link href="{{ url('backend/') }}/assets/css/app.min.css" id="app-style" rel="stylesheet" type="text/css" />
-</head>
-
-<body>
-  <!-- <body data-layout="horizontal"> -->
+@extends('auth.layouts.main')
+@push('title')
+  <title>User Login : {{ config('app.name') }}</title>
+@endpush
+@section('main-section')
   <div class="auth-page">
     <div class="container-fluid p-0">
       <div class="row g-0">
@@ -63,7 +42,7 @@
                         </div>
                         <div class="flex-shrink-0">
                           <div class="">
-                            <a href="{{ url('admin/forgot-password') }}" class="text-muted">Forgot password?</a>
+                            <a href="{{ url('account/password/reset') }}" class="text-muted">Forgot password?</a>
                           </div>
                         </div>
                       </div>
@@ -95,7 +74,7 @@
 
                   <div class="mt-5 text-center">
                     <p class="text-muted mb-0">
-                      <a href="{{ url('admin/forgot-password') }}" class="text-primary fw-semibold">
+                      <a href="{{ url('account/password/reset') }}" class="text-primary fw-semibold">
                         Forgot Password
                       </a>
                     </p>
@@ -118,20 +97,4 @@
       </div>
     </div>
   </div>
-
-  <!-- JAVASCRIPT -->
-  <script src="{{ url('backend/') }}/assets/libs/jquery/jquery.min.js"></script>
-  <script src="{{ url('backend/') }}/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="{{ url('backend/') }}/assets/libs/metismenu/metisMenu.min.js"></script>
-  <script src="{{ url('backend/') }}/assets/libs/simplebar/simplebar.min.js"></script>
-  <script src="{{ url('backend/') }}/assets/libs/node-waves/waves.min.js"></script>
-  <script src="{{ url('backend/') }}/assets/libs/feather-icons/feather.min.js"></script>
-  <!-- pace js -->
-  <script src="{{ url('backend/') }}/assets/libs/pace-js/pace.min.js"></script>
-  <!-- password addon init -->
-  <script src="{{ url('backend/') }}/assets/js/pages/pass-addon.init.js"></script>
-</body>
-
-<!-- Mirrored from themesbrand.com/minia/layouts/auth-login.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 18 Jan 2022 11:42:20 GMT -->
-
-</html>
+@endsection

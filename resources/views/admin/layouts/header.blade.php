@@ -111,7 +111,8 @@
               id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <img class="rounded-circle header-profile-user"
                 src="{{ url('backend/') }}/assets/images/users/avatar-1.jpg" alt="Header Avatar" />
-              <span class="d-none d-xl-inline-block ms-1 fw-medium">Admin</span>
+              <span
+                class="d-none d-xl-inline-block ms-1 fw-medium">{{ getFirstName(session('userLoggedIn.user_name')) }}</span>
               <i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-end">
@@ -148,12 +149,14 @@
                   <i data-feather="file-text"></i><span data-key="t-dashboards">University</span>
                 </a>
               </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle arrow-none" href="{{ aurl('users') }}" id="topnav-dashboard"
-                  role="button">
-                  <i data-feather="file-text"></i><span data-key="t-dashboards">Users</span>
-                </a>
-              </li>
+              @if (session('userLoggedIn.role') == 'admin')
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle arrow-none" href="{{ aurl('users') }}" id="topnav-dashboard"
+                    role="button">
+                    <i data-feather="file-text"></i><span data-key="t-dashboards">Users</span>
+                  </a>
+                </li>
+              @endif
             </ul>
           </div>
         </nav>

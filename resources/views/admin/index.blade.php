@@ -1,6 +1,6 @@
 @extends('admin.layouts.main')
 @push('title')
-  <title>{{ config('app.name') }} : Admin Dashboard</title>
+  <title>{{ config('app.name') }} : {{ ucwords(session('userLoggedIn.role')) }} Dashboard</title>
 @endpush
 @section('main-section')
   <div class="page-content">
@@ -14,7 +14,7 @@
             <div class="page-title-right">
               <ol class="breadcrumb m-0">
                 <li class="breadcrumb-item">
-                  <a href="javascript: void(0);">Admin</a>
+                  <a href="javascript: void(0);">{{ ucwords(session('userLoggedIn.role')) }}</a>
                 </li>
                 <li class="breadcrumb-item active">Dashboard</li>
               </ol>
@@ -24,18 +24,15 @@
       </div>
 
       <div class="row">
-        <div class="col-xl-3 col-md-6">
+        <div class="col-xl-12 col-md-12">
           <div class="card card-h-100">
             <div class="card-body">
               <div class="row align-items-center">
-                <div class="col-6">
-                  <span class="text-muted mb-3 lh-1 d-block text-truncate">Total User</span>
-                  <h4 class="mb-3">
-                    <span class="counter-value" data-target="">0</span>
-                  </h4>
+                <div class="col-12">
+                  <center>
+                    <h1 style="text-shadow: 1px 1px 1px #4f4636" class="text-info">MOU Dashboard</h1>
+                  </center>
                 </div>
-              </div>
-              <div class="text-nowrap">
               </div>
             </div>
           </div>

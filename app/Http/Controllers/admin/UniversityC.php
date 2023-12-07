@@ -35,7 +35,7 @@ class UniversityC extends Controller
   }
   public function getData(Request $request)
   {
-    $rows = University::where('id', '!=', '0');
+    $rows = University::withCount('concernPeople')->where('id', '!=', '0');
     $rows = $rows->paginate(10)->withPath('/admin/universities/');
     $i = 1;
     $output = '<table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
@@ -46,6 +46,7 @@ class UniversityC extends Controller
         <th>Address</th>
         <th>Email</th>
         <th>Mobile</th>
+        <th>Concern Person</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -74,10 +75,13 @@ class UniversityC extends Controller
       ' . $row->phone_number3 . '
      </td>';
       $output .= '<td>
+        <span class="badge bg-success" title="Add Concern Person">' . $row->concern_people_count . '</span>
         <a href="' . url("admin/concern-person/" . $row->id) . '"
-          class="waves-effect waves-light btn btn-xs btn-outline btn-primary">
+          class="waves-effect waves-light btn btn-xs btn-outline btn-primary" title="Add Concern Person" data-toggle="tooltip">
           <i class="fa fa-plus" aria-hidden="true"></i>
         </a>
+        </td>
+        <td>
         <a href="javascript:void()" onclick="DeleteAjax(' . $row->id . ')"
           class="waves-effect waves-light btn btn-xs btn-outline btn-danger">
           <i class="fa fa-trash" aria-hidden="true"></i>
