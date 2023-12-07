@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class University extends Model
 {
   use HasFactory;
+  protected $guarded = [];
   public function concernPeople()
   {
     return $this->hasMany(ConcernPerson::class);

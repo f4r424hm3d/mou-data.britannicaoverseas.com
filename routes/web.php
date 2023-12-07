@@ -104,6 +104,7 @@ Route::middleware(['userLoggedIn'])->group(function () {
       Route::get('/update/{id}', [UniversityC::class, 'index']);
       Route::post('/update/{id}', [UniversityC::class, 'update']);
       Route::post('/store-ajax', [UniversityC::class, 'storeAjax']);
+      Route::post('/import', [UniversityC::class, 'import']);
     });
     Route::prefix('/concern-person')->group(function () {
       Route::get('/get-data', [ConcernPersonC::class, 'getData']);

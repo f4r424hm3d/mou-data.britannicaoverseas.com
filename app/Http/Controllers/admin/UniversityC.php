@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\UniversityImport;
 use App\Models\University;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UniversityC extends Controller
 {
@@ -156,6 +158,56 @@ class UniversityC extends Controller
     $field->phone_number3 = $request['phone_number3'];
     $field->save();
     session()->flash('smsg', 'Record has been updated successfully.');
+    return redirect('admin/universities');
+  }
+  public function import(Request $request)
+  {
+    $request->validate([
+      'file' => 'required|mimes:xlsx,csv,xls'
+    ]);
+    $filePath = $request->file;
+
+    $import = new UniversityImport();
+    $importedData = Excel::toCollection($import, $filePath)->first();
+
+    $totalRows = $importedData->count();
+    $totalInsertedRows = 0;
+
+    foreach ($importedData as $row) {
+      $university = University::where('name', $row['name'])->first();
+      $status = isset($row['status']) ? $row['status'] : '0';
+      if (!$university) {
+        University::create([
+          'name' => $row['name'],
+          'slug' => slugify($row['name']),
+          'institute_type' => $row['institute_type'],
+          'address' => $row['address'],
+          'city' => $row['city'],
+          'state' => $row['state'],
+          'country' => $row['country'],
+          'phone_number' => $row['phone_number'],
+          'phone_number2' => $row['phone_number2'],
+          'phone_number3' => $row['phone_number3'],
+          'email' => $row['email'],
+          'email2' => $row['email2'],
+          'email3' => $row['email3'],
+          'whatsapp' => $row['whatsapp'],
+          'created_by' => session('userLoggedIn.user_id')
+        ]);
+        $totalInsertedRows++;
+      }
+    }
+
+    //return "Total rows: $totalRows, Total inserted rows: $totalInsertedRows";
+    if ($totalRows > 0) {
+      if ($totalInsertedRows > 0) {
+        session()->flash('smsg', $totalInsertedRows . ' out of ' . $totalRows . ' rows imported successfully.');
+      } else {
+        session()->flash('emsg', 'No new data imported. All rows already exist or duplicate rows found.');
+      }
+    } else {
+      session()->flash('emsg', 'No data found for import.');
+    }
     return redirect('admin/universities');
   }
 }

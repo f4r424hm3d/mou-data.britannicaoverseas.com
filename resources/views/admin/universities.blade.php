@@ -41,6 +41,10 @@
               </h4>
             </div>
             <div class="card-body" id="tblCDiv">
+              <!-- IMPORT FORM START -->
+              <x-ImportForm :pageRoute="$page_route" fileName="university"></x-ImportForm>
+              <hr>
+              <!-- IMPORT FORM END -->
               <form id="{{ $ft == 'add' ? 'dataForm' : 'editForm' }}" {{ $ft == 'edit' ? 'action=' . $url : '' }}
                 class="needs-validation" method="post" enctype="multipart/form-data" novalidate>
                 @csrf
