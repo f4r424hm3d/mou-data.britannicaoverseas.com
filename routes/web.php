@@ -98,13 +98,15 @@ Route::middleware(['userLoggedIn'])->group(function () {
     Route::post('/update-profile', [AdminDashboard::class, 'updateProfile']);
 
     Route::prefix('/universities')->group(function () {
+      Route::get('add', [UniversityC::class, 'add']);
       Route::get('', [UniversityC::class, 'index']);
-      Route::get('get-data', [UniversityC::class, 'getData']);
+      Route::post('/store', [UniversityC::class, 'store']);
       Route::get('/delete/{id}', [UniversityC::class, 'delete']);
-      Route::get('/update/{id}', [UniversityC::class, 'index']);
+      Route::get('/update/{id}', [UniversityC::class, 'add']);
       Route::post('/update/{id}', [UniversityC::class, 'update']);
-      Route::post('/store-ajax', [UniversityC::class, 'storeAjax']);
       Route::post('/import', [UniversityC::class, 'import']);
+      Route::post('/bulk-update-import', [UniversityC::class, 'bulkUpdateImport']);
+      Route::get('/export', [UniversityC::class, 'export']);
     });
     Route::prefix('/concern-person')->group(function () {
       Route::get('/get-data', [ConcernPersonC::class, 'getData']);

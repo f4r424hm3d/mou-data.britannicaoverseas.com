@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\admin;
 
+use App\Exports\UniversityListExport;
 use App\Http\Controllers\Controller;
 use App\Imports\UniversityImport;
+use App\Imports\UniversityListBulkUpdateImport;
 use App\Models\University;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,10 +13,24 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class UniversityC extends Controller
 {
-  public function index($id = null)
+  public function index(Request $request, $id = null)
   {
-    $page_no = $_GET['page'] ?? 1;
-    $rows = University::get();
+    $limit_per_page = $request->limit_per_page ?? 10;
+    $order_by = $request->order_by ?? 'name';
+    $order_in = $request->order_in ?? 'ASC';
+    $rows = University::withCount('concernPeople')->orderBy($order_by, $order_in);
+    if ($request->has('search') && $request->search != '') {
+      $rows = $rows->where('name', 'like', '%' . $request->search . '%')->orWhere('country', 'like', '%' . $request->search . '%')->orWhere('city', 'like', '%' . $request->search . '%')->orWhere('state', 'like', '%' . $request->search . '%');
+    }
+    $rows = $rows->paginate($limit_per_page)->withQueryString();
+
+    $cp = $rows->currentPage();
+    $pp = $rows->perPage();
+    $i = ($cp - 1) * $pp + 1;
+
+    $lpp = ['10', '20', '50'];
+    $orderColumns = ['Name' => 'name', 'Date' => 'created_at', 'City' => 'city', 'State' => 'state', 'Country' => 'country'];
+
     if ($id != null) {
       $sd = University::find($id);
       if (!is_null($sd)) {
@@ -32,86 +48,47 @@ class UniversityC extends Controller
     }
     $page_title = "University";
     $page_route = "universities";
-    $data = compact('rows', 'sd', 'ft', 'url', 'title', 'page_title', 'page_route', 'page_no');
+    $data = compact('rows', 'sd', 'ft', 'url', 'title', 'page_title', 'page_route', 'i', 'limit_per_page', 'order_by', 'order_in', 'lpp', 'orderColumns');
     return view('admin.universities')->with($data);
   }
-  public function getData(Request $request)
+  public function store(Request $request)
   {
-    $rows = University::withCount('concernPeople')->where('id', '!=', '0');
-    $rows = $rows->paginate(10)->withPath('/admin/universities/');
-    $i = 1;
-    $output = '<table id="datatable" class="table table-bordered dt-responsive nowrap w-100">
-    <thead>
-      <tr>
-        <th>S.No.</th>
-        <th>Name</th>
-        <th>Address</th>
-        <th>Email</th>
-        <th>Mobile</th>
-        <th>Concern Person</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>';
-    foreach ($rows as $row) {
-      $output .= '<tr id="row' . $row->id . '">
-      <td>' . $i . '</td>
-      <td>
-      ' . $row->name . ' <br>
-      (' . $row->institute_type . ')
-      </td>
-      <td>
-       Address : ' . $row->address . ' <br>
-       City : ' . $row->city . ' <br>
-       State : ' . $row->state . ' <br>
-       Country : ' . $row->country . ' <br>
-      </td>
-      <td>
-       ' . $row->email . ' <br>
-       ' . $row->email2 . ' <br>
-       ' . $row->email3 . '
-      </td>
-      <td>
-      ' . $row->phone_number . ' <br>
-      ' . $row->phone_number2 . ' <br>
-      ' . $row->phone_number3 . '
-     </td>';
-      $output .= '<td>
-        <span class="badge bg-success" title="Add Concern Person">' . $row->concern_people_count . '</span>
-        <a href="' . url("admin/concern-person/" . $row->id) . '"
-          class="waves-effect waves-light btn btn-xs btn-outline btn-primary" title="Add Concern Person" data-toggle="tooltip">
-          <i class="fa fa-plus" aria-hidden="true"></i>
-        </a>
-        </td>
-        <td>
-        <a href="javascript:void()" onclick="DeleteAjax(' . $row->id . ')"
-          class="waves-effect waves-light btn btn-xs btn-outline btn-danger">
-          <i class="fa fa-trash" aria-hidden="true"></i>
-        </a>
-        <a href="' . url("admin/universities/update/" . $row->id) . '"
-                      class="waves-effect waves-light btn btn-xs btn-outline btn-info">
-                      <i class="fa fa-edit" aria-hidden="true"></i>
-                    </a>
-      </td>
-    </tr>';
-      $i++;
+    // printArray($request->all());
+    // die;
+    $request->validate(
+      [
+        'name' => 'required|unique:universities,name',
+      ]
+    );
+    $field = new University;
+    if ($request->hasFile('logo')) {
+      $fileOriginalName = $request->file('logo')->getClientOriginalName();
+      $fileNameWithoutExtention = pathinfo($fileOriginalName, PATHINFO_FILENAME);
+      $file_name_slug = slugify($fileNameWithoutExtention);
+      $fileExtention = $request->file('logo')->getClientOriginalExtension();
+      $file_name = $file_name_slug . '_' . time() . '.' . $fileExtention;
+      $move = $request->file('logo')->move('university/', $file_name);
+      if ($move) {
+        $field->logo_name = $file_name;
+        $field->logo_path = 'university/' . $file_name;
+      } else {
+        session()->flash('emsg', 'Some problem occured. File not uploaded.');
+      }
     }
-    $output .= '</tbody></table>';
-    $output .= '<div>' . $rows->links('pagination::bootstrap-5') . '</div>';
-    return $output;
-  }
-  public function storeAjax(Request $request)
-  {
-    $validator = Validator::make($request->all(), [
-      'name' => 'required|unique:universities,name',
-    ]);
-
-    if ($validator->fails()) {
-      return response()->json([
-        'error' => $validator->errors(),
-      ]);
+    if ($request->hasFile('banner')) {
+      $fileOriginalName = $request->file('banner')->getClientOriginalName();
+      $fileNameWithoutExtention = pathinfo($fileOriginalName, PATHINFO_FILENAME);
+      $file_name_slug = slugify($fileNameWithoutExtention);
+      $fileExtention = $request->file('banner')->getClientOriginalExtension();
+      $file_name = $file_name_slug . '_' . time() . '.' . $fileExtention;
+      $move = $request->file('banner')->move('university/', $file_name);
+      if ($move) {
+        $field->banner_name = $file_name;
+        $field->banner_path = 'university/' . $file_name;
+      } else {
+        session()->flash('emsg', 'Some problem occured. File not uploaded.');
+      }
     }
-
     $field = new University;
     $field->name = $request['name'];
     $field->slug = slugify($request['name']);
@@ -126,14 +103,11 @@ class UniversityC extends Controller
     $field->phone_number = $request['phone_number'];
     $field->phone_number2 = $request['phone_number2'];
     $field->phone_number3 = $request['phone_number3'];
+    $field->whatsapp = $request['whatsapp'];
     $field->created_by = session('userLoggedIn.user_id');
     $field->save();
-    return response()->json(['success' => 'Record hase been added succesfully.']);
-  }
-  public function delete($id)
-  {
-    //echo $id;
-    echo $result = University::find($id)->delete();
+    session()->flash('smsg', 'New record has been added successfully.');
+    return redirect('admin/university/add');
   }
   public function update($id, Request $request)
   {
@@ -143,6 +117,34 @@ class UniversityC extends Controller
       ]
     );
     $field = University::find($id);
+    if ($request->hasFile('logo')) {
+      $fileOriginalName = $request->file('logo')->getClientOriginalName();
+      $fileNameWithoutExtention = pathinfo($fileOriginalName, PATHINFO_FILENAME);
+      $file_name_slug = slugify($fileNameWithoutExtention);
+      $fileExtention = $request->file('logo')->getClientOriginalExtension();
+      $file_name = $file_name_slug . '_' . time() . '.' . $fileExtention;
+      $move = $request->file('logo')->move('university/', $file_name);
+      if ($move) {
+        $field->logo_name = $file_name;
+        $field->logo_path = 'university/' . $file_name;
+      } else {
+        session()->flash('emsg', 'Some problem occured. File not uploaded.');
+      }
+    }
+    if ($request->hasFile('banner')) {
+      $fileOriginalName = $request->file('banner')->getClientOriginalName();
+      $fileNameWithoutExtention = pathinfo($fileOriginalName, PATHINFO_FILENAME);
+      $file_name_slug = slugify($fileNameWithoutExtention);
+      $fileExtention = $request->file('banner')->getClientOriginalExtension();
+      $file_name = $file_name_slug . '_' . time() . '.' . $fileExtention;
+      $move = $request->file('banner')->move('university/', $file_name);
+      if ($move) {
+        $field->banner_name = $file_name;
+        $field->banner_path = 'university/' . $file_name;
+      } else {
+        session()->flash('emsg', 'Some problem occured. File not uploaded.');
+      }
+    }
     $field->name = $request['name'];
     $field->slug = slugify($request['name']);
     $field->institute_type = $request['institute_type'];
@@ -156,9 +158,14 @@ class UniversityC extends Controller
     $field->phone_number = $request['phone_number'];
     $field->phone_number2 = $request['phone_number2'];
     $field->phone_number3 = $request['phone_number3'];
+    $field->whatsapp = $request['whatsapp'];
     $field->save();
     session()->flash('smsg', 'Record has been updated successfully.');
     return redirect('admin/universities');
+  }
+  public function delete($id)
+  {
+    echo $result = University::find($id)->delete();
   }
   public function import(Request $request)
   {
@@ -209,5 +216,50 @@ class UniversityC extends Controller
       session()->flash('emsg', 'No data found for import.');
     }
     return redirect('admin/universities');
+  }
+  public function add(Request $request, $id = null)
+  {
+    if ($id != null) {
+      $sd = University::find($id);
+      if (!is_null($sd)) {
+        $ft = 'edit';
+        $url = url('admin/universities/update/' . $id);
+        $title = 'Update';
+      } else {
+        return redirect('admin/universities');
+      }
+    } else {
+      $ft = 'add';
+      $url = url('admin/universities/store');
+      $title = 'Add New';
+      $sd = '';
+    }
+    $page_title = "Add University";
+    $page_route = "universities";
+    $data = compact('sd', 'ft', 'url', 'title', 'page_title', 'page_route');
+    return view('admin.add-university')->with($data);
+  }
+  public function export()
+  {
+    //echo "faraz";
+    return Excel::download(new UniversityListExport, 'university-list-' . date('Ymd-his') . '.xlsx');
+  }
+  public function bulkUpdateImport(Request $request)
+  {
+    // printArray($data->all());
+    // die;
+    $request->validate([
+      'file' => 'required|mimes:xlsx,csv,xls'
+    ]);
+    $file = $request->file;
+    if ($file) {
+      try {
+        $result = Excel::import(new UniversityListBulkUpdateImport, $file);
+        // session()->flash('smsg', 'Data has been imported succesfully.');
+        return redirect('admin/universities');
+      } catch (\Exception $ex) {
+        dd($ex);
+      }
+    }
   }
 }

@@ -67,6 +67,14 @@
       text-align: justify;
       text-justify: inter-word;
     }
+
+    .setBtn {
+      margin-top: 31px;
+    }
+
+    .card {
+      border: 1px solid #6d70738f !important;
+    }
   </style>
 </head>
 
@@ -149,11 +157,17 @@
                   <i data-feather="file-text"></i><span data-key="t-dashboards">University</span>
                 </a>
               </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle arrow-none" href="{{ aurl('universities/add') }}"
+                  id="topnav-dashboard" role="button">
+                  <i data-feather="plus-square"></i><span data-key="t-dashboards">Add University</span>
+                </a>
+              </li>
               @if (session('userLoggedIn.role') == 'admin')
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle arrow-none" href="{{ aurl('users') }}" id="topnav-dashboard"
                     role="button">
-                    <i data-feather="file-text"></i><span data-key="t-dashboards">Users</span>
+                    <i data-feather="users"></i><span data-key="t-dashboards">Users</span>
                   </a>
                 </li>
               @endif
