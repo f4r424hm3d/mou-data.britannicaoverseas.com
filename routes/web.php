@@ -4,6 +4,8 @@ use App\Http\Controllers\admin\AdminDashboard;
 use App\Http\Controllers\admin\AdminLogin;
 use App\Http\Controllers\admin\ConcernPersonC;
 use App\Http\Controllers\admin\UniversityC;
+use App\Http\Controllers\admin\UniversityCommentC;
+use App\Http\Controllers\admin\UniversityMouC;
 use App\Http\Controllers\admin\UserC;
 use App\Http\Controllers\admin\UserForgetPasswordC;
 use App\Http\Controllers\CommonController;
@@ -108,6 +110,13 @@ Route::middleware(['userLoggedIn'])->group(function () {
       Route::post('/bulk-update-import', [UniversityC::class, 'bulkUpdateImport']);
       Route::get('/export', [UniversityC::class, 'export']);
     });
+    Route::prefix('/university-mou')->group(function () {
+      Route::get('/{university_id}', [UniversityMouC::class, 'index']);
+      Route::post('/{university_id}/store', [UniversityMouC::class, 'store']);
+      Route::get('/delete/{id}', [UniversityMouC::class, 'delete']);
+      Route::get('/{university_id}/update/{id}', [UniversityMouC::class, 'index']);
+      Route::post('/{university_id}/update/{id}', [UniversityMouC::class, 'update']);
+    });
     Route::prefix('/concern-person')->group(function () {
       Route::get('/get-data', [ConcernPersonC::class, 'getData']);
       Route::get('/delete/{id}', [ConcernPersonC::class, 'delete']);
@@ -133,4 +142,8 @@ Route::prefix('common')->group(function () {
   Route::get('/change-status', [CommonController::class, 'changeStatus']);
   Route::get('/update-field', [CommonController::class, 'updateFieldById']);
   Route::get('/update-bulk-field', [CommonController::class, 'updateBulkField']);
+
+  Route::post('add-lead-note', [UniversityCommentC::class, 'store']);
+  Route::get('get-lead-notes', [UniversityCommentC::class, 'getAllNotes']);
+  Route::get('get-recent-lead-note', [UniversityCommentC::class, 'getRecentNote']);
 });

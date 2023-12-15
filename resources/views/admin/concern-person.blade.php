@@ -68,6 +68,11 @@
                       :sd="$sd">
                     </x-InputField>
                   </div>
+                  <div class="col-md-3 col-sm-12 mb-3">
+                    <x-InputField type="text" label="Department" name="department" id="department" :ft="$ft"
+                      :sd="$sd">
+                    </x-InputField>
+                  </div>
                   <div class="col-md-4 col-sm-12 mb-3">
                     <x-InputField type="text" label="Contact Number" name="mobile" id="mobile" :ft="$ft"
                       :sd="$sd">

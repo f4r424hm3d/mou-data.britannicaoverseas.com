@@ -95,6 +95,8 @@
                     <th>Email</th>
                     <th>Mobile</th>
                     <th>Concern Person</th>
+                    <th>Comment</th>
+                    <th>MOU File</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -134,6 +136,25 @@
                         </span>
                         <a href="{{ url('admin/concern-person/' . $row->id) }}"
                           class="waves-effect waves-light btn btn-xs btn-outline btn-primary" title="Add Concern Person"
+                          data-toggle="tooltip">
+                          <i class="fa fa-plus" aria-hidden="true"></i>
+                        </a>
+                      </td>
+                      <td>
+                        <span id="notesSpace{{ $row->id }}">{{ $row->getLastComment->comment ?? 'N/A' }}</span>
+                        <br>
+                        <a href="javascript:void()" onclick="addNotesToApp('{{ $row->id }}')" data-bs-toggle="modal"
+                          data-bs-target="#addNotesToAppModel" class="badge bg-success">Add</a>
+                        <a id="viewNotesBtn{{ $row->id }}" href="javascript:void()"
+                          onclick="viewAppNotes('{{ $row->id }}')" data-bs-toggle="modal"
+                          data-bs-target="#viewNotesToAppModel" class="badge bg-info <?php echo $row->getAllComment->count() > 0 ? '' : 'hide-this'; ?>">View</a>
+                      </td>
+                      <td>
+                        <span class="badge bg-success" title="Add Concern Person">
+                          {{ $row->concern_people_count }}
+                        </span>
+                        <a href="{{ url('admin/university-mou/' . $row->id) }}"
+                          class="waves-effect waves-light btn btn-xs btn-outline btn-info" title="Add Concern Person"
                           data-toggle="tooltip">
                           <i class="fa fa-plus" aria-hidden="true"></i>
                         </a>
@@ -180,6 +201,8 @@
       </div>
     </div>
   </div>
+  @include('common.add-app-notes')
+  @include('common.view-app-notes')
   <script>
     $.ajaxSetup({
       headers: {

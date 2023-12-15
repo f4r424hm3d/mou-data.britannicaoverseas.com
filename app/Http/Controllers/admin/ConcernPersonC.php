@@ -51,6 +51,7 @@ class ConcernPersonC extends Controller
         <th>Sr. No.</th>
         <th>Name</th>
         <th>Designation</th>
+        <th>Department</th>
         <th>Contact No</th>
         <th>Email</th>
         <th>University</th>
@@ -63,6 +64,7 @@ class ConcernPersonC extends Controller
       <td>' . $i . '</td>
       <td>' . $row->name . '</td>
       <td>' . $row->designation . '</td>
+      <td>' . $row->department . '</td>
       <td>
         Contact Number : ' . $row->mobile . ' <br>
         Whatsapp : ' . $row->whatsapp . '
@@ -109,6 +111,7 @@ class ConcernPersonC extends Controller
     $field->personal_email = $request['personal_email'];
     $field->official_email = $request['official_email'];
     $field->designation = $request['designation'];
+    $field->department = $request['department'];
     $field->university_id  = $request['university_id'];
     $field->created_by = session('userLoggedIn.user_id');
     $field->save();
@@ -133,6 +136,7 @@ class ConcernPersonC extends Controller
     $field->personal_email = $request['personal_email'];
     $field->official_email = $request['official_email'];
     $field->designation = $request['designation'];
+    $field->department = $request['department'];
     $field->university_id  = $request['university_id'];
     $field->created_by = session('userLoggedIn.user_id');
     $field->save();
